@@ -6,8 +6,6 @@
 #include <assert.h>
 
 
-#define ARRAY_NPOS SIZE_MAX
-
 #define ARRAY_TYPE(type) \
 	struct { \
 		type *elem_data; \
@@ -31,9 +29,7 @@
 	typedef ARRAY_TYPE(type) array_type
 
 void arrayptr_set_size_(void *array, size_t elem_size, size_t new_size, size_t max_size);
-size_t arrayptr_lower_bound_(const void *array, size_t elem_size, const void *key,
-	int (*compare_proc)(const void *key, const void *elem));
-size_t arrayptr_bin_search_(const void *array, size_t elem_size, const void *key,
+bool arrayptr_bin_search_(const void *array, size_t *pos, size_t elem_size, const void *key,
 	int (*compare_proc)(const void *key, const void *elem));
 
 #define array_init(arr) \
@@ -120,10 +116,7 @@ size_t arrayptr_bin_search_(const void *array, size_t elem_size, const void *key
 			array_set_size((arr), 0); \
 	} while (0)
 
-#define array_lower_bound(arr, key, cmp_proc) \
-	arrayptr_lower_bound_(&(arr), sizeof(*((arr).elem_data)), (key), (cmp_proc))
-
-#define array_bin_search(arr, key, cmp_proc) \
-	arrayptr_bin_search_(&(arr), sizeof(*((arr).elem_data)), (key), (cmp_proc))
+#define array_bin_search(arr, pos, key, cmp_proc) \
+	arrayptr_bin_search_(&(arr), (pos), sizeof(*((arr).elem_data)), (key), (cmp_proc))
 
 #endif

@@ -75,12 +75,13 @@ void arrayptr_set_size_(void *array, size_t elem_size, size_t new_size, size_t m
 	}
 }
 
-size_t arrayptr_lower_bound_(const void *array, size_t elem_size, const void *key,
+bool arrayptr_bin_search_(const void *array, size_t *pos, size_t elem_size, const void *key,
 	int (*compare_proc)(const void *key, const void *elem))
 {
 	const array_ptr *arr = array;
-	size_t count, count2, cur;
 	const char *base;
+	size_t count, count2, cur;
+	int cmp_res;
 
 	base = arr->elem_data;
 	count = arr->elem_count;
@@ -88,38 +89,15 @@ size_t arrayptr_lower_bound_(const void *array, size_t elem_size, const void *ke
 	cur = 0;
 	while (count) {
 		count2 = cur + (count / 2);
-		if ((*compare_proc)(key, base + (count2 * elem_size)) > 0) {
+		cmp_res = (*compare_proc)(key, base + (count2 * elem_size));
+		if (cmp_res > 0) {
 			cur = count2 + 1;
 			--count;
 		}
 		count /= 2;
 	}
-	return ((cur == arr->elem_count) ? ARRAY_NPOS : cur);
-}
-
-size_t arrayptr_bin_search_(const void *array, size_t elem_size, const void *key,
-	int (*compare_proc)(const void *key, const void *elem))
-{
-	const array_ptr *arr = array;
-	size_t count, count2, cur;
-	const char *base;
-	int cmp;
-
-	base = arr->elem_data;
-	count = arr->elem_count;
-
-	cur = 0;
-	while (count) {
-		count2 = cur + (count / 2);
-		cmp = (*compare_proc)(key, base + (count2 * elem_size));
-		if (cmp == 0) {
-			return count2;
-		}
-		if (cmp > 0) {
-			cur = count2 + 1;
-			--count;
-		}
-		count /= 2;
-	}
-	return ARRAY_NPOS;
+	if (pos != NULL)
+		*pos = cur;
+	return (cur != arr->elem_count) &&
+		((*compare_proc)(key, base + (cur * elem_size)) == 0);
 }

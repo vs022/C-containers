@@ -2,8 +2,11 @@
 #define LIST_H_
 
 /*
- * Doubly linked cyclic list
- *   head <==> item <==> ... <==> item <==> tail
+ * Doubly linked list
+ *
+ *         prev  next
+ * 0 <== item <==> item <==> ... <==> item ==> 0
+ *       head                         tail
  */
 
 struct list_info {
@@ -87,9 +90,10 @@ struct list_info {
 
 #define list_remove(item) \
 	do { \
-		struct list_info *_rm_item = (item); \
-		_rm_item->next->prev = _rm_item->prev; \
-		_rm_item->prev->next = _rm_item->next; \
+		struct list_info *_prev_item = (item)->prev; \
+		struct list_info *_next_item = (item)->next; \
+		_next_item->prev = _prev_item; \
+		_prev_item->next = _next_item; \
 	} while (0)
 
 #define list_remove_head(list) \
